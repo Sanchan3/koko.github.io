@@ -71,6 +71,12 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 4px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .checkbox-group {
+      display: flex;
+      gap: 8px;
     }
     .btn-link {
       background: linear-gradient(135deg, #b4a7d6, #ffb7b2);
@@ -89,17 +95,24 @@
     .checkbox-container {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
+      gap: 6px;
+      font-size: 0.8rem;
       color: #7a708a;
       cursor: pointer;
       background: #f3eff8;
       padding: 6px 10px;
       border-radius: 20px;
     }
+    .checkbox-container.reserved {
+      background: #e8f4fd;
+      color: #5a7d9a;
+    }
+    .checkbox-container.reserved input {
+      accent-color: #7baed4;
+    }
     .checkbox-container input {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       accent-color: #b4a7d6;
       cursor: pointer;
     }
@@ -115,7 +128,7 @@
 
   <header>
     <h1>🌷 高校説明会スケジュール</h1>
-    <p>行きたい学校をチェックして管理しよう♪</p>
+    <p>予約や訪問の状況をチェックして管理しよう♪</p>
   </header>
 
   <main id="app-container">
@@ -125,7 +138,7 @@
   <!-- JavaScript（動き） -->
   <script>
     // ★ここにスプレッドシートから発行したGASのウェブアプリURLを貼り付けてください
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwX62PjMOSIv2uBEVxouAUNRlqPkHNS_SSrd1mbWZv4TO9KXlaEwbyBa5bDp1tH0Pvn/exec";
+    const GAS_URL = "https://script.google.com/macros/library/d/1Fo7A_5JubtKKfmgudDp-8_Acb11k0YSMTRxwCa_DwY7oecH6gAtGKgwt/3";
 
     window.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("app-container");
@@ -141,7 +154,8 @@
 
           data.forEach((school, index) => {
             // 保存されたチェック状態を復元
-            const isChecked = localStorage.getItem(`school_${index}`) === "true";
+            const isReserved = localStorage.getItem(`school_reserved_${index}`) === "true";
+            const isVisited = localStorage.getItem(`school_visited_${index}`) === "true";
 
             const card = document.createElement("div");
             card.className = "school-card";
@@ -150,18 +164,30 @@
               <div class="school-name">${school.name}</div>
               <div class="schedule">${school.schedule}</div>
               <div class="card-footer">
-                <label class="checkbox-container">
-                  <input type="checkbox" data-index="${index}" ${isChecked ? "checked" : ""}>
-                  行ってきた・予約済✨
-                </label>
+                <div class="checkbox-group">
+                  <label class="checkbox-container reserved">
+                    <input type="checkbox" class="chk-reserved" data-index="${index}" ${isReserved ? "checked" : ""}>
+                    予約済み🗓️
+                  </label>
+                  <label class="checkbox-container">
+                    <input type="checkbox" class="chk-visited" data-index="${index}" ${isVisited ? "checked" : ""}>
+                    行ってきた✨
+                  </label>
+                </div>
                 <a href="${school.url}" target="_blank" class="btn-link">公式ページ ↗</a>
               </div>
             `;
 
-            // チェックボックスの状態が変わったらブラウザに保存
-            const checkbox = card.querySelector("input[type='checkbox']");
-            checkbox.addEventListener("change", (e) => {
-              localStorage.setItem(`school_${index}`, e.target.checked);
+            // 予約済みチェックボックスのイベント
+            const chkReserved = card.querySelector(".chk-reserved");
+            chkReserved.addEventListener("change", (e) => {
+              localStorage.setItem(`school_reserved_${index}`, e.target.checked);
+            });
+
+            // 行ってきたチェックボックスのイベント
+            const chkVisited = card.querySelector(".chk-visited");
+            chkVisited.addEventListener("change", (e) => {
+              localStorage.setItem(`school_visited_${index}`, e.target.checked);
             });
 
             container.appendChild(card);
