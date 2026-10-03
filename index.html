@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高校説明会スケジュール</title>
+  <meta name="theme-color" content="#b4a7d6">
+  
+  <!-- CSS（パステルカラー＆女子好みのかわいいデザイン） -->
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      background-color: #f7f5fb;
+      margin: 0;
+      padding: 16px;
+      color: #4a4a4a;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 12px;
+      background: linear-gradient(135deg, #e8dff5, #fce1e4);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(210, 190, 220, 0.2);
+    }
+    header h1 {
+      font-size: 1.25rem;
+      color: #7c6f8d;
+      margin: 0 0 4px 0;
+      letter-spacing: 0.05em;
+    }
+    header p {
+      font-size: 0.85rem;
+      color: #9e8fb2;
+      margin: 0;
+    }
+    .school-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 15px rgba(200, 190, 210, 0.15);
+      border: 1px solid #f0e6f6;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.2s ease;
+    }
+    .school-card:active {
+      transform: scale(0.99);
+    }
+    .school-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #5c526f;
+      border-left: 4px solid #b4a7d6;
+      padding-left: 8px;
+    }
+    .schedule {
+      font-size: 0.9rem;
+      color: #555555;
+      background: #faf8fc;
+      padding: 10px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .btn-link {
+      background: linear-gradient(135deg, #b4a7d6, #ffb7b2);
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(180, 165, 214, 0.3);
+      transition: opacity 0.2s;
+    }
+    .btn-link:hover {
+      opacity: 0.9;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #7a708a;
+      cursor: pointer;
+      background: #f3eff8;
+      padding: 6px 10px;
+      border-radius: 20px;
+    }
+    .checkbox-container input {
+      width: 18px;
+      height: 18px;
+      accent-color: #b4a7d6;
+      cursor: pointer;
+    }
+    .loading {
+      text-align: center;
+      color: #9e8fb2;
+      margin-top: 40px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🌷 高校説明会スケジュール</h1>
+    <p>行きたい学校をチェックして管理しよう♪</p>
+  </header>
+
+  <main id="app-container">
+    <p class="loading">よみこみ中...</p>
+  </main>
+
+  <!-- JavaScript（動き） -->
+  <script>
+    // ★ここにスプレッドシートから発行したGASのウェブアプリURLを貼り付けてください
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwX62PjMOSIv2uBEVxouAUNRlqPkHNS_SSrd1mbWZv4TO9KXlaEwbyBa5bDp1tH0Pvn/exec";
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("app-container");
+
+      fetch(GAS_URL)
+        .then(res => res.json())
+        .then(data => {
+          container.innerHTML = "";
+          if (data.length === 0) {
+            container.innerHTML = "<p class='loading'>データがまだありません。</p>";
+            return;
+          }
+
+          data.forEach((school, index) => {
+            // 保存されたチェック状態を復元
+            const isChecked = localStorage.getItem(`school_${index}`) === "true";
+
+            const card = document.createElement("div");
+            card.className = "school-card";
+            
+            card.innerHTML = `
+              <div class="school-name">${school.name}</div>
+              <div class="schedule">${school.schedule}</div>
+              <div class="card-footer">
+                <label class="checkbox-container">
+                  <input type="checkbox" data-index="${index}" ${isChecked ? "checked" : ""}>
+                  行ってきた・予約済✨
+                </label>
+                <a href="${school.url}" target="_blank" class="btn-link">公式ページ ↗</a>
+              </div>
+            `;
+
+            // チェックボックスの状態が変わったらブラウザに保存
+            const checkbox = card.querySelector("input[type='checkbox']");
+            checkbox.addEventListener("change", (e) => {
+              localStorage.setItem(`school_${index}`, e.target.checked);
+            });
+
+            container.appendChild(card);
+          });
+        })
+        .catch(err => {
+          container.innerHTML = "<p class='loading'>データの読み込みに失敗しちゃいました💦</p>";
+          console.error(err);
+        });
+    });
+  </script>
+
+</body>
+</html>
