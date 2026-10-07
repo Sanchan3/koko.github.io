@@ -66,6 +66,20 @@
       white-space: pre-wrap;
       line-height: 1.5;
     }
+      .time-info {
+      display: flex;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: #7c6f8d;
+      background: #f3eff8;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .time-info span {
+      font-weight: bold;
+    }
+
+    
     .card-footer {
       display: flex;
       justify-content: space-between;
@@ -160,23 +174,27 @@
             const card = document.createElement("div");
             card.className = "school-card";
             
-            card.innerHTML = `
-              <div class="school-name">${school.name}</div>
-              <div class="schedule">${school.schedule}</div>
-              <div class="card-footer">
-                <div class="checkbox-group">
-                  <label class="checkbox-container reserved">
-                    <input type="checkbox" class="chk-reserved" data-index="${index}" ${isReserved ? "checked" : ""}>
-                    予約済み🗓️
-                  </label>
-                  <label class="checkbox-container">
-                    <input type="checkbox" class="chk-visited" data-index="${index}" ${isVisited ? "checked" : ""}>
-                    行ってきた✨
-                  </label>
-                </div>
-                <a href="${school.url}" target="_blank" class="btn-link">公式ページ ↗</a>
-              </div>
-            `;
+           card.innerHTML = `
+      <div class="school-name">${school.name}</div>
+      <div class="schedule">${school.schedule}</div>
+      <div class="time-info">
+        <div>🏫 始業: <span>${school.startTime || "未設定"}</span></div>
+        <div>🏃‍♀️ 出発: <span>${school.departureTime || "未設定"}</span></div>
+      </div>
+      <div class="card-footer">
+        <div class="checkbox-group">
+          <label class="checkbox-container reserved">
+            <input type="checkbox" class="chk-reserved" data-index="${index}" ${isReserved ? "checked" : ""}>
+            予約済み🗓️
+          </label>
+          <label class="checkbox-container">
+            <input type="checkbox" class="chk-visited" data-index="${index}" ${isVisited ? "checked" : ""}>
+            行ってきた✨
+          </label>
+        </div>
+        <a href="${school.url}" target="_blank" class="btn-link">公式ページ ↗</a>
+      </div>
+    `;
 
             // 予約済みチェックボックスのイベント
             const chkReserved = card.querySelector(".chk-reserved");
